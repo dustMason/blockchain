@@ -3,13 +3,21 @@ require_relative 'blockchain'
 class Ledger
   attr_reader :wallets
   
-  def initialize
+  def initialize chain=[]
     @wallets = {}
+    chain.each { |block| apply_transactions block.transactions if block.valid? }
   end
+  
+  def sufficient_funds? wallet, amount
+    return true if wallet == Blockchain::MINING_REWARD
+    @wallets.has_key?(wallet) && @wallets[wallet] - amount >= 0
+  end
+  
+  private
   
   def apply_transactions transactions
     transactions.each do |t|
-      if t.from == Blockchain::MINING_REWARD || sufficient_funds?(t.from, t.amount)
+      if sufficient_funds?(t.from, t.amount)
         @wallets[t.from] -= t.amount unless t.from == Blockchain::MINING_REWARD
         @wallets[t.to] ||= 0
         @wallets[t.to] += t.amount
@@ -17,7 +25,4 @@ class Ledger
     end
   end
   
-  def sufficient_funds? wallet, amount
-    @wallets.has_key?(wallet) && @wallets[wallet] - amount >= 0
-  end
 end

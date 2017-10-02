@@ -4,9 +4,9 @@ Inspired by @dvf's blog post [Learn Blockchains by Building One](https://hackern
 
 To run the 'app', simply `bundle install` and `ruby app.rb`. You can interact with a simple web interface at http://localhost:4567.
 
-- A genesis block is mined when the blockchain is initialized and the reward is assigned to a new random address. You can send funds from that address to new ones.
+Instead of running multiple nodes and introducing some kind of JSON format for the blockchain data, this app simulates a network of peer nodes all within one process. The simulation assumes they all communicate instantaneously.
 
-- The ledger ignores invalid transactions, but they are still allowed into the blocks.
+- A genesis block is mined when each blockchain is initialized and the reward is assigned to its node. You can send funds from that address to new ones.
 
 - The blockchain itself is stored as a singly linked list. The hash of each block is computed from a combination of its own data and the hash of the previous linked block.
 

@@ -2,63 +2,11 @@
 <html>
   <head>
     <title>Blockchain</title>
-    <style>
-      body {
-        background: #333;
-        font-family: input, monospace;
-        color: #ccc;
-      }
-      h1 {
-        font-weight: 100;
-      }
-      label {
-        display: inline-block;
-        width: 80px;
-        text-align: right;
-        padding-right: 10px;
-      }
-      input[type=text] {
-        display: inline-block;
-        font-size: 18px;
-        padding: 8px;
-        border-radius: 3px;
-      }
-      table {
-        width: 100%;
-      }
-      th {
-        text-align: left;
-      }
-      td {
-        border: 1px solid #666;
-        background: #222;
-        vertical-align: top;
-        padding: 5px;
-      }
-      ul {
-        list-style: none;
-        padding: 0 0 0 10px;
-        margin: 0;
-      }
-      li {
-        margin: 0 0 7px 0;
-      }
-      .button {
-        font-size: 18px;
-        padding: 10px 30px;
-      }
-      .amount {
-        display: inline-block;
-        padding: 2px 6px;
-        border-radius: 3px;
-        background: cyan;
-        color: black;
-      }
-    </style>
+    <link rel="stylesheet" href="/style.css">
   </head>
   <body>
     
-    <form action="/transactions" method="post">
+    <form action="/transactions" method="post" class="transaction-form">
       <label for="from">From</label>
       <input type="text" name="from" id="from" />
       <label for="to">To</label>
@@ -68,76 +16,83 @@
       <input type="submit" class="button" value="Create Transaction" />
     </form>
     
-    <form action="/mine" method="post">
-      <input type="submit" class="button" value="Mine!">
-    </form>
-    
-    <h1>Wallets</h1>
-    <table>
-      <tr>
-        <th>Wallet</th>
-        <th>Balance</th>
-      </tr>
-      <% @wallets.each do |wallet, amount| %>
-        <tr>
-          <td><%= wallet %></td>
-          <td><%= amount %></td>
-        </tr>
-      <% end %>
-    </table>
-    
-    <% if @transactions.any? %>
-      <h1>Pending Transactions</h1>
-      <table>
-        <tr>
-          <th>From</th>
-          <th>To</th>
-          <th>Amount</th>
-        </tr>
-        <% @transactions.each do |transaction| %>
-          <tr>
-            <td><%= transaction.from %></td>
-            <td><%= transaction.to %></td>
-            <td><%= transaction.amount %></td>
-          </tr>
-        <% end %>
-      </table>
-    <% end %>
-    
-    <h1>Blocks</h1>
-    <table>
-      <tr>
-        <th>Index</th>
-        <th>Time</th>
-        <th>Transactions</th>
-        <th>Hash</th>
-        <th>Prev Hash</th>
-        <th>Nonce</th>
-        <th>Verification</th>
-      </tr>
-      <% @chain.each do |block| %>
-        <tr>
-          <td><%= block.index %></td>
-          <td><%= block.time %></td>
-          <td>
-            <ul>
-              <% block.data.each do |transaction| %>
-                <li>
-                  <strong class="amount">
-                    <%= transaction[:amount] %>
-                  </strong>
-                  <%= transaction[:from] %> => <%= transaction[:to] %>
-                </li>
+    <div class="chains">
+      
+      <% @blockchains.each_with_index do |blockchain, i| %>
+        <div class="chain">
+          
+          <h1><%= blockchain.id %></h1>
+          
+          <form action="/nodes/<%= blockchain.id %>/mine" method="post">
+            <input type="submit" class="button" value="Mine!">
+          </form>
+          
+          <h2>Wallets</h2>
+          <table>
+            <tr>
+              <th>Wallet</th>
+              <th>Balance</th>
+            </tr>
+            <% blockchain.ledger.wallets.each do |wallet, amount| %>
+              <tr>
+                <td><%= wallet %></td>
+                <td><%= amount %></td>
+              </tr>
+            <% end %>
+          </table>
+          
+          <% if blockchain.pending.any? %>
+            <h2>Pending Transactions</h2>
+            <table>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>$</th>
+                <th>Id</th>
+              </tr>
+              <% blockchain.pending.each do |transaction| %>
+                <tr>
+                  <td><%= transaction.from %></td>
+                  <td><%= transaction.to %></td>
+                  <td><%= transaction.amount %></td>
+                  <td><%= transaction.id[0..2] %></td>
+                </tr>
               <% end %>
-            </ul>
-          </td>
-          <td><%= block.hash[0..7] %></td>
-          <td><%= block.previous_hash[0..7] %></td>
-          <td><%= block.nonce %></td>
-          <td><%= block.verification[0..7] %></td>
-        </tr>
+            </table>
+          <% end %>
+          
+          <h2>Blocks</h2>
+          
+          <ul class="blocks">
+            <% blockchain.chain.reverse.each do |block| %>
+              <li <% if !block.valid? %>class="invalid"<% end %>>
+                <strong><%= block.index %></strong> @ <%= block.time %><br>
+                  <ul>
+                    <% block.transactions.each do |transaction| %>
+                      <li>
+                        <%= transaction.id[0..2] %>
+                        <strong class="amount">
+                          $<%= transaction.amount %>
+                        </strong>
+                        <%= transaction.from %> => <%= transaction.to %>
+                      </li>
+                    <% end %>
+                  </ul>
+                Hash : <%= block.hash[0..7] %><br>
+                Prev : <%= block.previous_hash[0..7] %><br>
+                Nonce: <%= block.nonce %><br>
+                Proof: <%= block.verification[0..7] %><br>
+                <form action="/nodes/<%= blockchain.id %>/blocks/<%= block.index %>/break" method="post">
+                  <input type="submit" value="Break">
+                </form>
+              </li>
+            <% end %>
+          </ul>
+          
+        </div>
       <% end %>
-    </table>
+    </div>
+    
     
   </body>
 </html>

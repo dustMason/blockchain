@@ -1,18 +1,19 @@
 require 'digest'
 
 class Block
-  attr_reader :index, :time, :data, :nonce
+  attr_accessor :transactions
+  attr_reader :index, :time, :nonce
   
-  def initialize index:, time:, data:, previous:
+  def initialize index:, time:, transactions:, previous:
     @index = index
     @time = time
-    @data = data
+    @transactions = transactions
     @nonce = nil
     @previous = previous
   end
   
   def hash
-    Digest::SHA256.hexdigest "#{index}#{time}#{data}#{previous_hash}"
+    Digest::SHA256.hexdigest "#{index}#{time}#{transactions}#{previous_hash}"
   end
   
   def verification
@@ -30,6 +31,10 @@ class Block
   
   def previous_hash
     @previous.nil? ? 'genesis' : @previous.hash
+  end
+  
+  def to_h
+    { index: index, time: time, transactions: transactions.map(&:to_h), nonce: nonce, hash: hash }
   end
   
   private
