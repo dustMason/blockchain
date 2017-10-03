@@ -2,9 +2,9 @@
 
 Inspired by @dvf's blog post [Learn Blockchains by Building One](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46), I decided to implement my own in ruby. I came up with a few ways to improve upon @dvf's example and learned a lot in the process. I'm now very curious to dive into the Bitcoin source and learn more about how some of these problems are solved.
 
-To run the 'app', simply `bundle install` and `ruby app.rb`. You can interact with a simple web interface at http://localhost:4567.
+To run the 'app', simply `bundle install` and `ruby app.rb`. You can interact with a simple web interface at http://localhost:4567. Note that the port may be different on your machine. Grab it from STDOUT when the app boots.
 
-Instead of running multiple nodes and introducing some kind of JSON format for the blockchain data, this app simulates a network of peer nodes all within one process. The simulation assumes they all communicate instantaneously.
+The included Procfile makes it easy to run a cluster of 3 nodes using foreman. You'll want to register each node with its two peers using the Add Peer form at the top of each node's dashboard.
 
 - A genesis block is mined when each blockchain is initialized and the reward is assigned to its node. You can send funds from that address to new ones.
 

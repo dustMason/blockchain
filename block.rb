@@ -4,11 +4,11 @@ class Block
   attr_accessor :transactions
   attr_reader :index, :time, :nonce
   
-  def initialize index:, time:, transactions:, previous:
+  def initialize index:, time:, transactions:, previous:, nonce: nil
     @index = index
     @time = time
     @transactions = transactions
-    @nonce = nil
+    @nonce = nonce
     @previous = previous
   end
   
@@ -35,6 +35,11 @@ class Block
   
   def to_h
     { index: index, time: time, transactions: transactions.map(&:to_h), nonce: nonce, hash: hash }
+  end
+  
+  def self.from_h h, previous=nil
+    transactions = h['transactions'].map { |t| Transaction.new t['from'], t['to'], t['amount'], t['id'] }
+    self.new index: h['index'], time: h['time'], transactions: transactions, previous: previous, nonce: h['nonce']
   end
   
   private

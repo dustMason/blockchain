@@ -9,7 +9,7 @@ class Ledger
   end
   
   def sufficient_funds? wallet, amount
-    return true if wallet == Blockchain::MINING_REWARD
+    return true if wallet == Blockchain::COINBASE
     @wallets.has_key?(wallet) && @wallets[wallet] - amount >= 0
   end
   
@@ -18,7 +18,7 @@ class Ledger
   def apply_transactions transactions
     transactions.each do |t|
       if sufficient_funds?(t.from, t.amount)
-        @wallets[t.from] -= t.amount unless t.from == Blockchain::MINING_REWARD
+        @wallets[t.from] -= t.amount unless t.from == Blockchain::COINBASE
         @wallets[t.to] ||= 0
         @wallets[t.to] += t.amount
       end

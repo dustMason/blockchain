@@ -1,35 +1,32 @@
 require_relative 'block'
-require_relative 'ledger'
-
-Transaction = Struct.new(:from, :to, :amount, :id)
+require_relative 'transaction'
 
 class Blockchain
-  attr_reader :pending, :chain, :ledger, :id
+  attr_reader :pending, :chain, :id
   
-  MINING_REWARD = "MINED"
+  COINBASE = "COINBASE"
   MINING_REWARD_AMOUNT = 5
   
-  def initialize
+  def initialize id
     @chain = []
     @pending = []
-    @id = SecureRandom.uuid.split("-").first
-    @ledger = Ledger.new
+    @id = id
     create_block! # genesis block
   end
   
   def create_block!
-    add_transaction Transaction.new(MINING_REWARD, @id, MINING_REWARD_AMOUNT, SecureRandom.uuid)
-    valids = valid_pending_transactions
-    invalids = @pending - valids
-    block = Block.new(index: @chain.size, time: Time.now, transactions: valids, previous: @chain.last)
-    @pending = invalids
+    add_transaction Transaction.new(COINBASE, @id, MINING_REWARD_AMOUNT, SecureRandom.uuid)
+    block = Block.new(index: @chain.size, time: Time.now, transactions: @pending, previous: @chain.last)
+    @pending = []
     @chain << block.mine!
-    @ledger = Ledger.new @chain
   end
   
   def add_transaction transaction
     if (transactions + @pending).none? { |trans| transaction.id == trans.id }
       @pending << transaction
+      return true
+    else
+      return false
     end
   end
   
@@ -39,24 +36,18 @@ class Blockchain
     @chain.last.valid? 
   end
   
-  def resolve! blockchain=nil
-    if blockchain && blockchain.valid? && blockchain.size > size
-      @chain = blockchain.chain.clone
+  def resolve! chain=[]
+    if !chain.empty? && chain.last.valid? && chain.size > @chain.size
+      @chain = chain
       _transactions = transactions
       @pending = @pending.select { |trans| _transactions.none? { |t| t.id == trans.id } }
+      return true
+    else
+      return false
     end
-    @ledger = Ledger.new @chain
-  end
-  
-  def size
-    @chain.size
   end
   
   private
-  
-  def valid_pending_transactions
-    @pending.select { |trans| @ledger.sufficient_funds? trans.from, trans.amount }
-  end
   
   def transactions
     @chain.reduce([]) { |acc, block| acc + block.transactions }

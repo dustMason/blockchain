@@ -76,9 +76,29 @@ ul ul {
   padding: 10px 30px;
 }
 
+.peers h2 {
+  margin: 0;
+  padding: 5px 5px 0 5px;
+}
+
+.peers li {
+  display: inline-block;
+  background: cyan;
+  color: black;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin: 5px;
+}
+
+.peers-form,
 .transaction-form {
   background: #444;
   padding: 10px;
+  border-bottom: 1px solid #666;
+}
+
+.main {
+  padding: 0 15px;
 }
 
 .chains {

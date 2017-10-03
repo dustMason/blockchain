@@ -1,31 +1,35 @@
 require 'sinatra'
 require 'json'
-require_relative 'blockchain'
+require_relative 'node'
 
 set :public_folder, 'public'
+set :port, ENV['PORT']
 
-NODES_COUNT = 3
-
-# each Blockchain instance represents a peer node on a network
-NODES = (0..NODES_COUNT-1).to_a.map { Blockchain.new }
+NODE = Node.new
 
 get '/' do
-  @blockchains = NODES
+  @node = NODE
+  @blockchain = @node.blockchain
+  @peers = @node.peers
+  @ledger = @node.ledger
   erb :index
 end
 
-# when transactions enter the network, they are broadcast to all the nodes
 post '/transactions' do
-  transaction = Transaction.new(params[:from], params[:to], params[:amount].to_i, SecureRandom.uuid)
-  NODES.each { |b| b.add_transaction transaction }
+  NODE.add_transaction params[:from], params[:to], params[:amount].to_i, params[:id]
   redirect '/'
 end
 
-# when any node mines a new block, the rest of the nodes are notified. they each
-# decide whether or not to pick up the new chain.
-post '/nodes/:id/mine' do
-  node = NODES.find { |b| b.id == params[:id] }
-  node.create_block!
-  NODES.each { |b| b.resolve! node }
+post '/mine' do
+  NODE.mine!
+  redirect '/'
+end
+
+post '/resolve' do
+  NODE.resolve(JSON.parse(request.body.read)) ? status(202) : status(200)
+end
+
+post '/peers' do
+  NODE.add_peer params[:address]
   redirect '/'
 end
