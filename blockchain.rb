@@ -30,12 +30,6 @@ class Blockchain
     end
   end
   
-  def valid?
-    # Block#valid? recursively checks all linked blocks, so calling it on the last
-    # block verifies every block in the chain.
-    @chain.last.valid? 
-  end
-  
   def resolve! chain=[]
     if !chain.empty? && chain.last.valid? && chain.size > @chain.size
       @chain = chain
