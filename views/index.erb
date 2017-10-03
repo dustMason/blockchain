@@ -99,5 +99,10 @@
     
     </div>
     
+    <script type="text/javascript">
+      var es = new EventSource('/events');
+      es.onmessage = function(e) { window.location.reload(false); };
+    </script>
+    
   </body>
 </html>
