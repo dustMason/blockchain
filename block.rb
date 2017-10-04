@@ -26,6 +26,8 @@ class Block
   end
   
   def valid?
+    # TODO enforce the COINBASE transaction rule also
+    # ie, there can only be one COINBASE transaction, and for the correct amount
     valid_proof? nonce
   end
   
@@ -38,7 +40,9 @@ class Block
   end
   
   def self.from_h h, previous=nil
-    transactions = h['transactions'].map { |t| Transaction.new t['from'], t['to'], t['amount'], t['id'] }
+    transactions = h['transactions'].map do |t|
+      Transaction.new *t.values_at('from', 'to', 'amount', 'public_key', 'id', 'signature')
+    end
     self.new index: h['index'], time: h['time'], transactions: transactions, previous: previous, nonce: h['nonce']
   end
   

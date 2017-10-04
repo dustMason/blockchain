@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'json'
 require_relative 'node'
+require_relative 'wallet'
 
 set public_folder: 'public', port: (ENV['PORT'] || 4567), server: 'thin', connections: []
 
@@ -8,15 +9,30 @@ NODE = Node.new
 
 get '/' do
   @node = NODE
+  @wallet = @node.wallet
   @blockchain = @node.blockchain
   @peers = @node.peers
   @ledger = @node.ledger
   erb :index
 end
 
-post '/transactions' do
-  NODE.add_transaction params[:from], params[:to], params[:amount].to_i, params[:id]
+post '/send' do
+  NODE.send params[:to], params[:amount].to_i
   settings.connections.each { |out| out << "data: added transaction\n\n" }
+  redirect '/'
+end
+
+post '/transactions' do
+  if NODE.create_transaction(
+    params[:from],
+    params[:to],
+    params[:amount].to_i,
+    params[:public_key],
+    params[:id],
+    params[:signature]
+  )
+    settings.connections.each { |out| out << "data: added transaction\n\n" }
+  end
   redirect '/'
 end
 

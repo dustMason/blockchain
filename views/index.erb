@@ -20,19 +20,18 @@
       </form>
     </div>
     
-    <form action="/transactions" method="post" class="transaction-form">
-      <label for="from">From</label>
-      <input type="text" name="from" id="from" />
+    <form action="/send" method="post" class="transaction-form">
       <label for="to">To</label>
       <input type="text" name="to" id="to" />
       <label for="amount">Amount</label>
       <input type="text" name="amount" id="amount" />
-      <input type="submit" class="button" value="Create Transaction" />
+      <input type="submit" class="button" value="Create Transaction" /><br>
     </form>
     
     <div class="main">
       
-      <h1><%= @node.id[0..7] %></h1>
+      <h1>Node <%= @node.id[0..7] %></h1>
+      <strong>Address</strong>: <%= @wallet.address %>
       
       <form action="/mine" method="post">
         <input type="submit" class="button" value="Mine!">

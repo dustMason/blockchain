@@ -4,14 +4,16 @@ require 'json'
 require_relative 'blockchain'
 require_relative 'block'
 require_relative 'ledger'
+require_relative 'wallet'
 
 class Node
-  attr_reader :id, :blockchain, :peers, :ledger
+  attr_reader :id, :blockchain, :peers, :ledger, :wallet
   
   def initialize
     @id = SecureRandom.uuid
     @peers = Set.new
-    @blockchain = Blockchain.new @id
+    @wallet = Wallet.new
+    @blockchain = Blockchain.new @wallet.address
     @ledger = Ledger.new @blockchain.chain
   end
   
@@ -19,11 +21,14 @@ class Node
     @peers.add address
   end
   
-  def add_transaction from, to, amount, id=nil
-    transaction = Transaction.new from, to, amount, (id || SecureRandom.uuid)
-    if @ledger.sufficient_funds?(from, amount) && @blockchain.add_transaction(transaction)
-      @peers.each { |address| Net::HTTP.post_form(URI(address + "/transactions"), transaction.to_h) }
-    end
+  def create_transaction from, to, amount, public_key, id=nil, signature='0'
+    transaction = Transaction.new from, to, amount, public_key, (id || SecureRandom.uuid), signature
+    add_transaction transaction
+  end
+  
+  def send to, amount
+    transaction = @wallet.generate_transaction to, amount
+    add_transaction transaction
   end
   
   def mine!
@@ -43,6 +48,15 @@ class Node
   end
   
   private
+  
+  def add_transaction trans
+    if @ledger.sufficient_funds?(trans.from, trans.amount) && @blockchain.add_transaction(trans)
+      @peers.each { |address| Net::HTTP.post_form(URI(address + "/transactions"), trans.to_h) }
+      return true
+    else
+      return false
+    end
+  end
   
   def send_chain_to_peers
     @peers.each { |address| Net::HTTP.post(URI(address + "/resolve"), dump_chain.to_json) }
