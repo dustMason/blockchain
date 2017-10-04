@@ -51,7 +51,7 @@ post '/resolve' do
 end
 
 post '/peers' do
-  NODE.add_peer params[:address]
+  NODE.add_peer params[:host], params[:port].to_i
   redirect '/'
 end
 

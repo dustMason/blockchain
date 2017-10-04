@@ -7,45 +7,57 @@
   <body>
     
     <div class="peers">
-      <ul>
-        <h2>Peers</h2>
-        <% @peers.each do |address| %>
-          <li><%= address %></li>
-        <% end %>
-      </ul>
+      <% if @peers.any? %>
+        <ul>
+          <h2>Peers</h2>
+          <% @peers.each do |(host, port)| %>
+            <li>http://<%= host %>:<%= port %></li>
+          <% end %>
+        </ul>
+      <% end %>
       <form action="/peers" method="post" class="peers-form">
-        <label for="address">Address</label>
-        <input type="text" name="address" id="address" />
+        <label for="host">http://</label>
+        <input type="text" name="host" id="host" placeholder="host" />
+        <label for="port">Port</label>
+        <input type="text" name="port" id="port" />
         <input type="submit" class="button" value="Add Peer" />
       </form>
     </div>
     
-    <form action="/send" method="post" class="transaction-form">
-      <label for="to">To</label>
-      <input type="text" name="to" id="to" />
-      <label for="amount">Amount</label>
-      <input type="text" name="amount" id="amount" />
-      <input type="submit" class="button" value="Create Transaction" /><br>
-    </form>
     
     <div class="main">
       
-      <h1>Node <%= @node.id[0..7] %></h1>
-      <strong>Address</strong>: <%= @wallet.address %>
+      <h1>Hi, I'm node <%= @node.id[0..7] %>.</h1>
       
-      <form action="/mine" method="post">
-        <input type="submit" class="button" value="Mine!">
-      </form>
+      <h2>Local Wallet</h2>
+      <div class="wallet">
+        <div class="details">
+          <dl>
+            <dt>Address</dt>
+            <dd><%= @wallet.address %></dd>
+            <dt>Balance</dt>
+            <dd><%= @ledger.wallets[@wallet.address] || 0 %></dd>
+          </dl>
+        </div>
+        <form action="/send" method="post" class="transaction-form">
+          <label for="to">To</label>
+          <input type="text" name="to" id="to" placeholder="address" />
+          <label for="amount">Amount</label>
+          <input type="text" name="amount" id="amount" />
+          <input type="submit" class="button" value="Create Transaction" /><br>
+        </form>
+      </div>
       
-      <h2>Wallets</h2>
+      
+      <h2>Ledger</h2>
       <table>
         <tr>
-          <th>Wallet</th>
+          <th>Address</th>
           <th>Balance</th>
         </tr>
-        <% @ledger.wallets.each do |wallet, amount| %>
+        <% @ledger.wallets.each do |address, amount| %>
           <tr>
-            <td><%= wallet %></td>
+            <td><%= address %></td>
             <td><%= amount %></td>
           </tr>
         <% end %>
@@ -73,6 +85,11 @@
       
       <h2>Blocks</h2>
       
+      <form action="/mine" method="post">
+        <input type="submit" class="button" value="Mine a Block">
+      </form>
+      <br>
+      
       <ul class="blocks">
         <% @blockchain.chain.reverse.each do |block| %>
           <li <% if !block.valid? %>class="invalid"<% end %>>
@@ -84,7 +101,7 @@
                     <strong class="amount">
                       $<%= transaction.amount %>
                     </strong>
-                    <%= transaction.from %> => <%= transaction.to %>
+                    <%= transaction.from[0..15] %> => <%= transaction.to[0..15] %>
                   </li>
                 <% end %>
               </ul>

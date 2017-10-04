@@ -17,8 +17,8 @@ class Node
     @ledger = Ledger.new @blockchain.chain
   end
   
-  def add_peer address
-    @peers.add address
+  def add_peer host, port
+    @peers.add [host, port]
   end
   
   def create_transaction from, to, amount, public_key, id=nil, signature='0'
@@ -51,7 +51,9 @@ class Node
   
   def add_transaction trans
     if @ledger.sufficient_funds?(trans.from, trans.amount) && @blockchain.add_transaction(trans)
-      @peers.each { |address| Net::HTTP.post_form(URI(address + "/transactions"), trans.to_h) }
+      @peers.each do |(host, port)|
+        Net::HTTP.post_form(URI::HTTP.build(host: host, port: port, path: '/transactions'), trans.to_h)
+      end
       return true
     else
       return false
@@ -59,7 +61,9 @@ class Node
   end
   
   def send_chain_to_peers
-    @peers.each { |address| Net::HTTP.post(URI(address + "/resolve"), dump_chain.to_json) }
+    @peers.each do |(host, port)|
+      Net::HTTP.post(URI::HTTP.build(host: host, port: port, path: '/resolve'), dump_chain.to_json)
+    end
   end
   
   def dump_chain

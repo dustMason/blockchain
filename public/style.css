@@ -1,6 +1,6 @@
 body {
   background: #333;
-  font-family: input, monospace;
+  font-family: 'menlo', monospace;
   color: #ccc;
   padding: 0;
   margin: 0;
@@ -51,6 +51,26 @@ ul ul {
   padding-top: 8px;
 }
 
+dl {
+  margin: 0;
+}
+dt {
+  font-weight: bold;
+}
+
+.wallet {
+  border: 1px solid #666;
+}
+
+.wallet .details {
+  padding: 15px;
+}
+
+.transaction-form {
+  padding: 15px;
+  background: #222;
+}
+
 .blocks {
   border: 1px solid #666;
 }
@@ -90,8 +110,7 @@ ul ul {
   margin: 5px;
 }
 
-.peers-form,
-.transaction-form {
+.peers-form {
   background: #444;
   padding: 10px;
   border-bottom: 1px solid #666;
