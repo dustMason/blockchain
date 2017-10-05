@@ -36,7 +36,8 @@ class Blockchain
     end
   end
   
-  def resolve! chain=[]
+  def resolve! chain_data
+    chain = parse_chain chain_data
     # TODO this does not protect against invalid block shapes (bogus COINBASE transactions for example)
     if !chain.empty? && chain.last.valid? && chain.size > @chain.size
       @chain = chain
@@ -58,7 +59,7 @@ class Blockchain
   def load_from_cache
     data = @cache.read
     if data
-      resolve! parse_chain(data['chain'])
+      resolve! data['chain']
       transactions = data['transactions'].map { |hash| Transaction.from_h hash }
       transactions.each { |trans| add_transaction trans }
     end

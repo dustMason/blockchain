@@ -41,7 +41,7 @@ class Node
   end
   
   def resolve chain_data
-    if @blockchain.resolve! parse_chain(chain_data)
+    if @blockchain.resolve! chain_data
       @ledger = Ledger.new @blockchain.chain
       send_chain_to_peers
       return true

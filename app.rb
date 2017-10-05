@@ -5,11 +5,31 @@ require_relative 'lib/node'
 # TODO add metadata `source_node` to transactions, use it to avoid posting them
 # back to the originating nodes (which ignore them anyway).
 
-set public_folder: 'public', port: (ENV['PORT'] || 4567), server: 'thin', connections: []
+set(
+  public_folder: 'public',
+  port: (ENV['PORT'] || 4567),
+  server: 'thin',
+  connections: [],
+  password: (ENV['PASSWORD'] || 'admin')
+)
+
+helpers do
+  def protected!
+    return if authorized?
+    headers['WWW-Authenticate'] = 'Basic realm="Restricted Area"'
+    halt 401, "Not authorized\n"
+  end
+
+  def authorized?
+    @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+    @auth.provided? and @auth.basic? and @auth.credentials and @auth.credentials == ['admin', settings.password]
+  end
+end
 
 NODE = Node.new
 
 get '/' do
+  protected!
   @node = NODE
   erb :index
 end
