@@ -52,7 +52,6 @@ input[type=text] {
 }
 
 table {
-  width: 100%;
   border-spacing: 0;
   border-collapse: collapse;
 }
@@ -63,7 +62,7 @@ th {
 
 td {
   vertical-align: top;
-  padding: 5px 5px 5px 0;
+  padding: 5px 15px 5px 0;
 }
 
 ul {
