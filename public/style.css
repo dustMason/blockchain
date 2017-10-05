@@ -1,13 +1,39 @@
 body {
-  background: #333;
+  background: #fff;
   font-family: 'menlo', monospace;
-  color: #ccc;
+  color: #2B2D2F;
   padding: 0;
   margin: 0;
+  font-size: 14px;
+  min-width: 960px;
+}
+
+.columns {
+  display: flex;
+}
+
+.left {
+  width: 66%;
+}
+
+.right {
+  width: 34%;
+}
+
+h1 {
+  font-size: 54px;
+  font-weight: normal;
+  padding-left: 15px;
 }
 
 h2 {
-  font-weight: 100;
+  font-size: 16px;
+}
+
+h2 span {
+  font-size: 14px;
+  color: #597898;
+  font-weight: normal;
 }
 
 label {
@@ -19,9 +45,10 @@ label {
 
 input[type=text] {
   display: inline-block;
-  font-size: 18px;
+  font-size: 14px;
   padding: 8px;
-  border-radius: 3px;
+  border-radius: 0;
+  border: 0;
 }
 
 table {
@@ -35,10 +62,8 @@ th {
 }
 
 td {
-  border: 1px solid #666;
-  background: #222;
   vertical-align: top;
-  padding: 5px;
+  padding: 5px 5px 5px 0;
 }
 
 ul {
@@ -47,93 +72,92 @@ ul {
   margin: 0;
 }
 
-ul ul {
-  padding-top: 8px;
+input[type=submit] {
+  font-size: 14px;
+  font-family: menlo, monospace;
+  border-radius: 5px;
+  padding: 8px 20px;
+  background: #FFDC00;
+  color: #2B2D2F;
+  border: 0;
 }
 
-dl {
-  margin: 0;
+input[type=submit].small {
+  font-size: 10px;
+  padding: 4px 10px;
 }
-dt {
-  font-weight: bold;
+
+.wallet,
+.pending-transactions,
+.peers,
+.ledger,
+.blockchain {
+  padding: 15px;
 }
 
 .wallet {
-  border: 1px solid #666;
+  background: #7FDBFF;
 }
 
-.wallet .details {
-  padding: 15px;
+.wallet h2 {
+  margin-bottom: 0;
 }
 
-.transaction-form {
-  padding: 15px;
-  background: #222;
+.balance {
+  font-size: 30px;
 }
 
-.blocks {
-  border: 1px solid #666;
+.pending-transactions {
+  background: #A3E6FF;
 }
 
-.blocks > li {
-  margin: 0;
-  background: #222;
-  border-bottom: 1px dashed #666;
-  padding: 10px;
+.peers {
+  background: #C6EFFF;
 }
 
-.blocks > li.invalid {
-  background: #FF4136;
+.peers li form {
+  display: inline;
+}
+
+.ledger {
+  background: #E3F7FF;
+}
+
+.blockchain {
+  position: relative;
+  background: #001F3F;
   color: #fff;
 }
 
-.blocks > li li {
-  padding-bottom: 5px;
+.blockchain form {
+  position: absolute;
+  top: 30px;
+  right: 15px;
 }
 
-.button {
-  font-size: 18px;
-  padding: 10px 30px;
+.blocks {
+  border: 1px solid #597898;
+  border-bottom: 0;
 }
 
-.peers h2 {
+.block {
   margin: 0;
-  padding: 5px 5px 0 5px;
+  border-bottom: 2px dashed #597898;
+  padding: 10px;
+}
+
+.block .header {
+  text-align: center;
+  padding: 0 8px 8px 8px;
+  color: #597898;
+  border-bottom: 1px solid #354c63;
+  margin-bottom: 10px;
+}
+
+.block .id {
+  color: #597898;
 }
 
 .peers li {
-  display: inline-block;
-  background: cyan;
-  color: black;
-  padding: 3px 8px;
-  border-radius: 4px;
-  margin: 5px;
-}
-
-.peers-form {
-  background: #444;
-  padding: 10px;
-  border-bottom: 1px solid #666;
-}
-
-.main {
-  padding: 0 15px;
-}
-
-.chains {
-  display: flex;
-  padding: 10px 0 0 0;
-}
-
-.chain {
-  width: 33%;
-  padding: 0 5px;
-}
-
-.amount {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 3px;
-  background: pink;
-  color: black;
+  padding: 5px 0px;
 }

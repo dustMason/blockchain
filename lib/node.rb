@@ -11,17 +11,22 @@ class Node
   
   def initialize
     @id = SecureRandom.uuid
-    @peers = Set.new
+    @peers = []
     @wallet = Wallet.new
     @blockchain = Blockchain.new @wallet.address
     @ledger = Ledger.new @blockchain.chain
   end
   
   def add_peer host, port
-    @peers.add [host, port]
+    @peers << [host, port]
+    @peers.uniq!
     # TODO no need to send to every peer, just the new one
     send_chain_to_peers
     blockchain.pending.each { |trans| send_transaction_to_peers trans }
+  end
+  
+  def remove_peer index
+    @peers.delete_at index
   end
   
   def create_transaction from, to, amount, public_key, id=nil, signature='0'

@@ -1,116 +1,137 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Blockchain</title>
+    <title>Coin</title>
     <link rel="stylesheet" href="/style.css">
   </head>
   <body>
     
-    <div class="peers">
-      <% if @node.peers.any? %>
-        <ul>
-          <h2>Peers</h2>
-          <% @node.peers.each do |(host, port)| %>
-            <li>http://<%= host %>:<%= port %></li>
-          <% end %>
-        </ul>
-      <% end %>
-      <form action="/peers" method="post" class="peers-form">
-        <label for="host">http://</label>
-        <input type="text" name="host" id="host" placeholder="host" />
-        <label for="port">Port</label>
-        <input type="text" name="port" id="port" />
-        <input type="submit" class="button" value="Add Peer" />
-      </form>
-    </div>
+    <h1>Coin</h1>
     
-    <div class="main">
-      
-      <h1>Hi, I'm node <%= @node.id[0..7] %>.</h1>
-      
-      <h2>Local Wallet</h2>
-      <div class="wallet">
-        <div class="details">
-          <dl>
-            <dt>Address</dt>
-            <dd><%= @node.wallet.address %></dd>
-            <dt>Balance</dt>
-            <dd>$<%= @node.ledger.wallets[@node.wallet.address] || 0 %></dd>
-          </dl>
+    <div class="columns">
+      <div class="left">
+        
+        <div class="wallet">
+          <div class="details">
+            <h2>Address</h2>
+            <div><%= @node.wallet.address %></div>
+            <h2>Balance</h2>
+            <div class="balance">$<%= @node.ledger.wallets[@node.wallet.address] || 0 %></div>
+          </div>
+          <form action="/send" method="post" class="transaction-form">
+            <label for="to">To</label>
+            <input type="text" name="to" id="to" placeholder="address" />
+            <label for="amount">Amount</label>
+            <input type="text" name="amount" id="amount" />
+            <input type="submit" class="button" value="Send" /><br>
+          </form>
         </div>
-        <form action="/send" method="post" class="transaction-form">
-          <label for="to">To</label>
-          <input type="text" name="to" id="to" placeholder="address" />
-          <label for="amount">Amount</label>
-          <input type="text" name="amount" id="amount" />
-          <input type="submit" class="button" value="Create Transaction" /><br>
-        </form>
+        
+        <div class="pending-transactions">
+          <h2>Pending Transactions</h2>
+          <% if @node.blockchain.pending.any? %>
+            <table>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>$</th>
+                <th>Id</th>
+              </tr>
+              <% @node.blockchain.pending.each do |transaction| %>
+                <tr>
+                  <td><%= transaction.from[0..15] %></td>
+                  <td><%= transaction.to[0..15] %></td>
+                  <td><%= transaction.amount %></td>
+                  <td><%= transaction.id[0..2] %></td>
+                </tr>
+              <% end %>
+            </table>
+          <% else %>
+            <i>No pending transactions</i>
+          <% end %>
+        </div>
+        
+        <div class="peers">
+          <h2>Peers</h2>
+          <% if @node.peers.any? %>
+            <ul>
+              <% @node.peers.each_with_index do |(host, port), i| %>
+                <li>
+                  http://<%= host %>:<%= port %>
+                  <form action="/peers/<%= i %>/delete" method="post">
+                    <input type="submit" class="small" value="Remove" />
+                  </form>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <i>No peers</i>
+          <% end %>
+          <form action="/peers" method="post" class="peers-form">
+            <label for="host">http://</label>
+            <input type="text" name="host" id="host" placeholder="host" />
+            <label for="port">Port</label>
+            <input type="text" name="port" id="port" />
+            <input type="submit" class="button" value="Add Peer" />
+          </form>
+        </div>
+        
+        <div class="ledger">
+          <h2>Ledger</h2>
+          <table>
+            <tr>
+              <th>Address</th>
+              <th>Balance</th>
+            </tr>
+            <% @node.ledger.wallets.each do |address, amount| %>
+              <tr>
+                <td><%= address[0..15] %></td>
+                <td>$<%= amount %></td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+        
       </div>
       
-      <h2>Ledger</h2>
-      <table>
-        <tr>
-          <th>Address</th>
-          <th>Balance</th>
-        </tr>
-        <% @node.ledger.wallets.each do |address, amount| %>
-          <tr>
-            <td><%= address[0..15] %></td>
-            <td>$<%= amount %></td>
-          </tr>
-        <% end %>
-      </table>
-      
-      <% if @node.blockchain.pending.any? %>
-        <h2>Pending Transactions</h2>
-        <table>
-          <tr>
-            <th>From</th>
-            <th>To</th>
-            <th>$</th>
-            <th>Id</th>
-          </tr>
-          <% @node.blockchain.pending.each do |transaction| %>
-            <tr>
-              <td><%= transaction.from[0..15] %></td>
-              <td><%= transaction.to[0..15] %></td>
-              <td><%= transaction.amount %></td>
-              <td><%= transaction.id[0..2] %></td>
-            </tr>
-          <% end %>
-        </table>
-      <% end %>
-      
-      <h2>Blocks</h2>
-      
-      <form action="/mine" method="post">
-        <input type="submit" class="button" value="Mine a Block">
-      </form>
-      <br>
-      
-      <ul class="blocks">
-        <% @node.blockchain.chain.reverse.each do |block| %>
-          <li <% if !block.valid? %>class="invalid"<% end %>>
-            <strong><%= block.index %></strong> @ <%= block.time %><br>
-              <ul>
-                <% block.transactions.each do |transaction| %>
-                  <li>
-                    <%= transaction.id[0..2] %>
-                    <strong class="amount">
-                      $<%= transaction.amount %>
-                    </strong>
-                    <%= transaction.from[0..15] %> => <%= transaction.to[0..15] %>
-                  </li>
-                <% end %>
-              </ul>
-            Hash : <%= block.hash[0..7] %><br>
-            Prev : <%= block.previous_hash[0..7] %><br>
-            Nonce: <%= block.nonce %><br>
-            Proof: <%= block.verification[0..7] %><br>
-          </li>
-        <% end %>
-      </ul>
-    
+      <div class="right">
+        
+        <div class="blockchain">
+          <h2>
+            Blockchain<br>
+            <span><%= @node.blockchain.size %> blocks</span>
+          </h2>
+          <form action="/mine" method="post">
+            <input type="submit" class="button" value="Mine a Block">
+          </form>
+          
+          <div class="blocks">
+            <% @node.blockchain.chain.last(10).reverse.each do |block| %>
+              <div class="block">
+                <div class="header">
+                  <%= block.index %> — <%= block.time %><br>
+                </div>
+                <table>
+                  <% block.transactions.each do |transaction| %>
+                    <tr>
+                      <td class="id">
+                        <%= transaction.id[0..2] %>
+                      </td>
+                      <td>
+                        $<%= transaction.amount %>
+                      </td>
+                      <td>
+                        <%= transaction.from[0..7] %> → <%= transaction.to[0..7] %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </table>
+              </div>
+            <% end %>
+          </div>  
+        </div>
+        
+      </div>
     </div>
     
     <script type="text/javascript">

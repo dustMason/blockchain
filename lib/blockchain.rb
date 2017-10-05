@@ -54,6 +54,10 @@ class Blockchain
     { chain: @chain.map(&:to_h), transactions: @pending.map(&:to_h) }.to_json
   end
   
+  def size
+    @chain.size
+  end
+  
   private
   
   def load_from_cache

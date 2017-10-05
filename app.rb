@@ -74,6 +74,11 @@ post '/peers' do
   redirect '/'
 end
 
+post '/peers/:index/delete' do
+  NODE.remove_peer params[:index].to_i
+  redirect '/'
+end
+
 get '/events', provides: 'text/event-stream' do
   stream :keep_open do |out|
     settings.connections << out
