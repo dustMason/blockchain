@@ -1,4 +1,5 @@
 require_relative 'block'
+require_relative 'json_cache'
 require_relative 'transaction'
 
 class Blockchain
@@ -11,7 +12,10 @@ class Blockchain
     @chain = []
     @pending = []
     @address = address
-    create_block! # genesis block
+    @cache = JsonCache.new 'blockchain.json'
+    unless load_from_cache
+      create_block! # genesis block
+    end
   end
   
   def create_block!
@@ -19,11 +23,13 @@ class Blockchain
     block = Block.new(index: @chain.size, time: Time.now, transactions: @pending, previous: @chain.last)
     @pending = []
     @chain << block.mine!
+    @cache.write to_json
   end
   
   def add_transaction transaction
     if transaction_is_new?(transaction) && transaction.valid_signature?
       @pending << transaction
+      @cache.write to_json
       return true
     else
       return false
@@ -36,13 +42,36 @@ class Blockchain
       @chain = chain
       _transactions = transactions
       @pending = @pending.select { |trans| _transactions.none? { |t| t.id == trans.id } }
+      @cache.write to_json
       return true
     else
       return false
     end
   end
   
+  def to_json
+    { chain: @chain.map(&:to_h), transactions: @pending.map(&:to_h) }.to_json
+  end
+  
   private
+  
+  def load_from_cache
+    data = @cache.read
+    if data
+      resolve! parse_chain(data['chain'])
+      transactions = data['transactions'].map { |hash| Transaction.from_h hash }
+      transactions.each { |trans| add_transaction trans }
+    end
+  end
+  
+  def parse_chain chain_data
+    prev = nil
+    chain_data.map do |block_data|
+      block = Block.from_h block_data, prev
+      prev = block
+      block
+    end
+  end
   
   def transaction_is_new? transaction
     (transactions + @pending).none? { |trans| transaction.id == trans.id }

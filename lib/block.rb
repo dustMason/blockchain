@@ -40,9 +40,7 @@ class Block
   end
   
   def self.from_h h, previous=nil
-    transactions = h['transactions'].map do |t|
-      Transaction.new *t.values_at('from', 'to', 'amount', 'public_key', 'id', 'signature')
-    end
+    transactions = h['transactions'].map { |hash| Transaction.from_h hash }
     self.new index: h['index'], time: h['time'], transactions: transactions, previous: previous, nonce: h['nonce']
   end
   

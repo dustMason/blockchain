@@ -7,10 +7,10 @@
   <body>
     
     <div class="peers">
-      <% if @peers.any? %>
+      <% if @node.peers.any? %>
         <ul>
           <h2>Peers</h2>
-          <% @peers.each do |(host, port)| %>
+          <% @node.peers.each do |(host, port)| %>
             <li>http://<%= host %>:<%= port %></li>
           <% end %>
         </ul>
@@ -24,7 +24,6 @@
       </form>
     </div>
     
-    
     <div class="main">
       
       <h1>Hi, I'm node <%= @node.id[0..7] %>.</h1>
@@ -34,9 +33,9 @@
         <div class="details">
           <dl>
             <dt>Address</dt>
-            <dd><%= @wallet.address %></dd>
+            <dd><%= @node.wallet.address %></dd>
             <dt>Balance</dt>
-            <dd><%= @ledger.wallets[@wallet.address] || 0 %></dd>
+            <dd><%= @node.ledger.wallets[@node.wallet.address] || 0 %></dd>
           </dl>
         </div>
         <form action="/send" method="post" class="transaction-form">
@@ -48,14 +47,13 @@
         </form>
       </div>
       
-      
       <h2>Ledger</h2>
       <table>
         <tr>
           <th>Address</th>
           <th>Balance</th>
         </tr>
-        <% @ledger.wallets.each do |address, amount| %>
+        <% @node.ledger.wallets.each do |address, amount| %>
           <tr>
             <td><%= address %></td>
             <td><%= amount %></td>
@@ -63,7 +61,7 @@
         <% end %>
       </table>
       
-      <% if @blockchain.pending.any? %>
+      <% if @node.blockchain.pending.any? %>
         <h2>Pending Transactions</h2>
         <table>
           <tr>
@@ -72,7 +70,7 @@
             <th>$</th>
             <th>Id</th>
           </tr>
-          <% @blockchain.pending.each do |transaction| %>
+          <% @node.blockchain.pending.each do |transaction| %>
             <tr>
               <td><%= transaction.from %></td>
               <td><%= transaction.to %></td>
@@ -91,7 +89,7 @@
       <br>
       
       <ul class="blocks">
-        <% @blockchain.chain.reverse.each do |block| %>
+        <% @node.blockchain.chain.reverse.each do |block| %>
           <li <% if !block.valid? %>class="invalid"<% end %>>
             <strong><%= block.index %></strong> @ <%= block.time %><br>
               <ul>

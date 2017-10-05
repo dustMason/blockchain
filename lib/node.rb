@@ -1,8 +1,8 @@
 require 'net/http'
 require 'set'
 require 'json'
-require_relative 'blockchain'
 require_relative 'block'
+require_relative 'blockchain'
 require_relative 'ledger'
 require_relative 'wallet'
 
@@ -19,6 +19,9 @@ class Node
   
   def add_peer host, port
     @peers.add [host, port]
+    # TODO no need to send to every peer, just the new one
+    send_chain_to_peers
+    blockchain.pending.each { |trans| send_transaction_to_peers trans }
   end
   
   def create_transaction from, to, amount, public_key, id=nil, signature='0'
@@ -51,9 +54,7 @@ class Node
   
   def add_transaction trans
     if @ledger.sufficient_funds?(trans.from, trans.amount) && @blockchain.add_transaction(trans)
-      @peers.each do |(host, port)|
-        Net::HTTP.post_form(URI::HTTP.build(host: host, port: port, path: '/transactions'), trans.to_h)
-      end
+      send_transaction_to_peers trans
       return true
     else
       return false
@@ -62,20 +63,13 @@ class Node
   
   def send_chain_to_peers
     @peers.each do |(host, port)|
-      Net::HTTP.post(URI::HTTP.build(host: host, port: port, path: '/resolve'), dump_chain.to_json)
+      Net::HTTP.post(URI::HTTP.build(host: host, port: port, path: '/resolve'), @blockchain.to_json)
     end
   end
   
-  def dump_chain
-    @blockchain.chain.map &:to_h
-  end
-  
-  def parse_chain chain_data
-    prev = nil
-    chain_data.map do |block_data|
-      block = Block.from_h block_data, prev
-      prev = block
-      block
+  def send_transaction_to_peers trans
+    @peers.each do |(host, port)|
+      Net::HTTP.post_form(URI::HTTP.build(host: host, port: port, path: '/transactions'), trans.to_h)
     end
   end
 end

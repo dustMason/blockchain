@@ -1,7 +1,9 @@
 require 'sinatra'
 require 'json'
-require_relative 'node'
-require_relative 'wallet'
+require_relative 'lib/node'
+
+# TODO add metadata `source_node` to transactions, use it to avoid posting them
+# back to the originating nodes (which ignore them anyway).
 
 set public_folder: 'public', port: (ENV['PORT'] || 4567), server: 'thin', connections: []
 
@@ -9,10 +11,6 @@ NODE = Node.new
 
 get '/' do
   @node = NODE
-  @wallet = @node.wallet
-  @blockchain = @node.blockchain
-  @peers = @node.peers
-  @ledger = @node.ledger
   erb :index
 end
 
@@ -42,7 +40,8 @@ post '/mine' do
 end
 
 post '/resolve' do
-  if NODE.resolve(JSON.parse(request.body.read)) 
+  chain_data = JSON.parse(request.body.read)
+  if chain_data['chain'] && NODE.resolve(chain_data['chain']) 
     status 202
     settings.connections.each { |out| out << "data: resolved\n\n" }
   else 

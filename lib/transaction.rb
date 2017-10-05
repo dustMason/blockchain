@@ -9,6 +9,10 @@ Transaction = Struct.new(:from, :to, :amount, :public_key, :id, :signature) do
     Digest::SHA256.hexdigest self.to_h.to_s
   end
   
+  def self.from_h hash
+    self.new *hash.values_at('from', 'to', 'amount', 'public_key', 'id', 'signature')
+  end
+  
   def valid_signature?
     return true if from == Blockchain::COINBASE
     return false if from != Digest::SHA256.hexdigest(public_key)
