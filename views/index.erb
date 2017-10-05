@@ -35,7 +35,7 @@
             <dt>Address</dt>
             <dd><%= @node.wallet.address %></dd>
             <dt>Balance</dt>
-            <dd><%= @node.ledger.wallets[@node.wallet.address] || 0 %></dd>
+            <dd>$<%= @node.ledger.wallets[@node.wallet.address] || 0 %></dd>
           </dl>
         </div>
         <form action="/send" method="post" class="transaction-form">
@@ -55,8 +55,8 @@
         </tr>
         <% @node.ledger.wallets.each do |address, amount| %>
           <tr>
-            <td><%= address %></td>
-            <td><%= amount %></td>
+            <td><%= address[0..15] %></td>
+            <td>$<%= amount %></td>
           </tr>
         <% end %>
       </table>
@@ -72,8 +72,8 @@
           </tr>
           <% @node.blockchain.pending.each do |transaction| %>
             <tr>
-              <td><%= transaction.from %></td>
-              <td><%= transaction.to %></td>
+              <td><%= transaction.from[0..15] %></td>
+              <td><%= transaction.to[0..15] %></td>
               <td><%= transaction.amount %></td>
               <td><%= transaction.id[0..2] %></td>
             </tr>
