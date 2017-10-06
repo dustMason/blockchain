@@ -1,13 +1,26 @@
 # Blockchain Toy
 
-Inspired by @dvf's blog post [Learn Blockchains by Building One](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46), I decided to implement my own in ruby. I came up with a few ways to improve upon @dvf's example and learned a lot in the process. I'm now very curious to dive into the Bitcoin source and learn more about how some of these problems are solved.
+Inspired by @dvf's blog post [Learn Blockchains by Building One](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46), I decided to implement my own in ruby.
 
-To run the 'app', simply `bundle install` and `ruby app.rb`. You can interact with a simple web interface at http://localhost:4567. Note that the port may be different on your machine. Grab it from STDOUT when the app boots.
+![dashboard](/dashboard.png?raw=true "Dashboard")
 
-The included Procfile makes it easy to run a cluster of 3 nodes using foreman. You'll want to register each node with its two peers using the Add Peer form at the top of each node's dashboard.
+## Features
 
-- A genesis block is mined when each blockchain is initialized and the reward is assigned to its node. You can send funds from that address to new ones.
+- [x] Blockchain: the integrity of each block depends on that of the previous one. Uses SHA256.
+- [x] Proof of Work: a block is mined by finding a nonce that results in a hash with 4 leading zeros.
+- [x] Consensus: the longest blockchain wins.
+- [x] Secure Transactions: they are signed using ECDSA with a private key held by the initiator, and verified by each node before they get added to the blockchain.
+- [x] Wallets: addresses are derived from a SHA256 hash of the public key belonging to the wallet.
+- [x] Peering: each node manually names peers. They communicate via a JSON API over HTTP.
+- [x] UI: each node runs a web based dashboard.
+- [x] Persistence: each node keeps a local cache of the full blockchain (`blockchain.json`) and it's wallet keys (`wallet.json`)
 
-- The blockchain itself is stored as a singly linked list. The hash of each block is computed from a combination of its own data and the hash of the previous linked block.
+## Run It
 
-- Like Bitcoin, SHA256 is the hashing algorithm used. The proof of work algorithm is super simple, though, and simply looks for a nonce resulting in a hash with 4 leading zeros.
+```
+# requires ruby 2.4+
+bundle install
+PASSWORD=cucumber PORT=4567 ruby app.rb
+```
+
+Load the web UI at http://localhost:4567. Username is *admin*, password as above.
