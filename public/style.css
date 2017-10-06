@@ -21,9 +21,10 @@ body {
 }
 
 h1 {
-  font-size: 54px;
+  font-size: 80px;
   font-weight: normal;
   padding-left: 15px;
+  margin-bottom: 20px;
 }
 
 h2 {
