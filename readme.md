@@ -15,6 +15,13 @@ Inspired by @dvf's blog post [Learn Blockchains by Building One](https://hackern
 - [x] UI: each node runs a web based dashboard.
 - [x] Persistence: each node keeps a local cache of the full blockchain (`blockchain.json`) and it's wallet keys (`wallet.json`)
 
+## To Do
+
+- [ ] Bootstrapping. https://en.bitcoin.it/wiki/Network#Bootstrapping
+- [ ] Merkle Tree. Right now the entire blockchain is held in memory as a linked list.
+- [ ] Peer heartbeat. https://en.bitcoin.it/wiki/Network#Heartbeat
+- [ ] Partial blockchain download. When joining the network, a node should request the chain by providing the hash of the most recent block it has.
+
 ## Run It
 
 ```
