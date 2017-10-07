@@ -1,0 +1,20 @@
+name: blockchain-crystal
+version: 0.1.0
+
+authors:
+  - Jordan Sitkin <jordan@fiftyfootfoghorn.com>
+
+targets:
+  blockchain-crystal:
+    main: src/blockchain-crystal.cr
+    
+description: |
+  A toy cryptocurrency
+
+dependencies:
+  kemal:
+    github: kemalcr/kemal
+
+crystal: 0.23.1
+
+license: MIT

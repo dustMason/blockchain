@@ -1,3 +1,7 @@
 /wallet.json
 /blockchain.json
 /.env
+/doc/
+/lib/
+/bin/
+/.shards/
