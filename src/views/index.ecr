@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Coin</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    
+    <h1>🥒</h1>
+    
+    <div class="columns">
+      <div class="left">
+        
+        <div class="wallet">
+          <div class="details">
+            <h2>Address</h2>
+            <div><%= node.wallet.address %></div>
+          </div>
+          <form action="/send" method="post" class="transaction-form">
+            <label for="to">To</label>
+            <input type="text" name="to" id="to" placeholder="address" />
+            <label for="amount">Amount</label>
+            <input type="text" name="amount" id="amount" />
+            <input type="submit" class="button" value="Send" /><br>
+          </form>
+        </div>
+        
+        <div class="pending-transactions">
+          <h2>Pending Transactions</h2>
+          <% if node.blockchain.pending.any? %>
+            <table>
+              <tr>
+                <th>From</th>
+                <th>To</th>
+                <th>$</th>
+                <th>Id</th>
+              </tr>
+              <% node.blockchain.pending.each do |transaction| %>
+                <tr>
+                  <td><%= transaction.from[0..15] %></td>
+                  <td><%= transaction.to[0..15] %></td>
+                  <td><%= transaction.amount %></td>
+                  <td><%= transaction.id[0..2] %></td>
+                </tr>
+              <% end %>
+            </table>
+          <% else %>
+            <i>No pending transactions</i>
+          <% end %>
+        </div>
+        
+        <div class="peers">
+          <h2>Peers</h2>
+          <% if node.peers.any? %>
+            <ul>
+              <% node.peers.each_with_index do |(host, port), i| %>
+                <li>
+                  http://<%= host %>:<%= port %>
+                  <form action="/peers/<%= i %>/delete" method="post">
+                    <input type="submit" class="small" value="Remove" />
+                  </form>
+                </li>
+              <% end %>
+            </ul>
+          <% else %>
+            <i>No peers</i>
+          <% end %>
+          <form action="/peers" method="post" class="peers-form">
+            <label for="host">http://</label>
+            <input type="text" name="host" id="host" placeholder="host" />
+            <label for="port">Port</label>
+            <input type="text" name="port" id="port" />
+            <input type="submit" class="button" value="Add Peer" />
+          </form>
+        </div>
+        
+        <div class="ledger">
+          <h2>Ledger</h2>
+          <table>
+            <tr>
+              <th>Address</th>
+              <th>Balance</th>
+            </tr>
+            <% node.ledger.wallets.each do |address, amount| %>
+              <tr>
+                <td><%= address[0..15] %></td>
+                <td>$<%= amount %></td>
+              </tr>
+            <% end %>
+          </table>
+        </div>
+        
+      </div>
+      
+      <div class="right">
+        
+        <div class="blockchain">
+          <h2>
+            Blockchain<br>
+            <span><%= node.blockchain.size %> blocks</span>
+          </h2>
+          <form action="/mine" method="post">
+            <input type="submit" class="button" value="Mine a Block">
+          </form>
+          
+          <div class="blocks">
+            <% node.blockchain.chain.last(10).reverse.each do |block| %>
+              <div class="block">
+                <div class="header">
+                  <%= block.index %> — <%= block.time %><br>
+                </div>
+                <table>
+                  <% block.transactions.each do |transaction| %>
+                    <tr>
+                      <td class="id">
+                        <%= transaction.id[0..2] %>
+                      </td>
+                      <td>
+                        $<%= transaction.amount %>
+                      </td>
+                      <td>
+                        <%= transaction.from[0..7] %> → <%= transaction.to[0..7] %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </table>
+              </div>
+            <% end %>
+          </div>  
+        </div>
+        
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+      var es = new EventSource('/events');
+      es.onmessage = function(e) { window.location.reload(false); };
+    </script>
+    
+  </body>
+</html>
